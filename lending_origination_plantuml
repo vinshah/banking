@@ -1,0 +1,54 @@
+@startuml
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+autonumber
+
+actor "Applicant" as App
+participant "Frontend\nPortal" as Portal
+participant "Loan\nOrigination System (LOS)" as LOS
+participant "Credit\nBureau" as Credit
+participant "Underwriting\nEngine" as UW
+participant "Core Banking\nSystem" as Core
+
+== Application Submission ==
+App -> Portal: Submit Loan Application
+Activate Portal
+Portal -> LOS: Create Application (Data)
+Activate LOS
+LOS --> Portal: Application ID (Pending)
+deactivate LOS
+Portal --> App: Confirmation & Application ID
+deactivate Portal
+
+== Underwriting & Validation ==
+App -> LOS: Upload Documents (Income, ID)
+activate LOS
+LOS -> Credit: Fetch Credit Score
+activate Credit
+Credit --> LOS: Credit Report (Score)
+deactivate Credit
+
+LOS -> UW: Run Automated Risk Assessment
+activate UW
+UW --> LOS: Decision (Approved/Conditional/Declined)
+deactivate UW
+
+== Final Approval & Funding ==
+alt #LightGreen Approved
+    LOS -> Core: Create Account & Loan Record
+    activate Core
+    Core --> LOS: Account Number
+    deactivate Core
+    LOS -> App: Notify Approval & Send Contract
+    App -> LOS: Sign Contract
+    LOS -> Core: Initiate Fund Transfer
+    activate Core
+    Core --> App: Funds Disbursed
+    deactivate Core
+    LOS --> App: Loan Closed
+else #Pink Declined
+    LOS -> App: Send Decline Notification
+end
+deactivate LOS
+
+@enduml
