@@ -1,0 +1,58 @@
+@startuml
+title Loan Application Submission
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+autonumber
+
+actor "Applicant" as App
+participant "Mobile\nApplication" as Portal
+box "I&O Layer" #LightBlue
+participant "Converge\nBankingSuite" as bs
+database DataStore as ds
+end box
+participant "LendFast\nLoan Origination System (LOS)" as LOS
+participant "Engine\nCore Banking System" as Core
+
+== Initiate Loan Application ==
+App -> Portal: Initiate Loan Application
+Activate Portal
+Portal -> bs: POST /loan/application(application_data)
+Activate bs
+bs -> ds: store draft
+bs --> Portal: Application ID
+deactivate bs
+Portal --> App: Application Saved as Draft (Application ID)
+deactivate Portal
+
+== Retrieve Loan Application ==
+App -> Portal: Retrieve Loan Application
+Activate Portal
+Portal -> bs: GET /loan/application(id)
+Activate bs
+ds -> bs: return draft
+bs --> Portal: Application
+deactivate bs
+Portal --> App: Application(Application Data)
+deactivate Portal
+
+== Application Submission ==
+App -> Portal: Submit Loan Application
+Activate Portal
+Portal -> bs: POST /loan(application_data)
+Activate bs
+bs -> LOS: POST [Loan Application]
+Activate LOS
+LOS -> bs: return [Lendfast Loan Application ID]
+bs -> ds: [Store Lendfast Loan Application ID]
+deactivate LOS
+bs -> Core: POST [Loan Application]
+activate Core
+Core -> bs: [Engine Loan ID]
+deactivate Core
+bs -> ds: [Store Engine Loan ID]
+bs --> Portal: Success
+deactivate bs
+Portal --> App: Success
+deactivate Portal
+
+@enduml
