@@ -10,30 +10,57 @@ box "I&O Layer" #LightBlue
 participant "Converge\nBankingSuite" as bs
 database DataStore as ds
 end box
-participant "LendFast\nLoan Origination System (LOS)" as LOS
-participant "Engine\nCore Banking System" as Core
+participant "Loan Origination System (LOS)" as LOS
+participant "Core Banking System" as Core
 
 == Initiate Loan Application ==
 App -> Portal: Initiate Loan Application
 Activate Portal
-Portal -> bs: POST /loan/application(application_data)
+Portal -> bs: POST /loan/application (data)
 Activate bs
-bs -> ds: store draft
-bs --> Portal: Application ID
+bs -> ds: store Application as draft
+ds -> bs: Success
+bs --> Portal: 201 Created
 deactivate bs
 Portal --> App: Application Saved as Draft (Application ID)
 deactivate Portal
 
-== Retrieve Loan Application ==
+== Retrieve Loan Application Draft ==
 App -> Portal: Retrieve Loan Application
 Activate Portal
-Portal -> bs: GET /loan/application(id)
+Portal -> bs: GET /loan/application{id}
 Activate bs
-ds -> bs: return draft
-bs --> Portal: Application
+bs -> ds: retrieve application based on id
+ds -> bs: Loan Application
+bs --> Portal: 200 Ok (Data)
 deactivate bs
 Portal --> App: Application(Application Data)
 deactivate Portal
+
+== Update Loan Application Draft ==
+App -> Portal: Update Loan Application
+Activate Portal
+Portal -> bs: PUT /loan/application{id} (updated_data)
+Activate bs
+bs -> ds: Update Application
+ds -> bs: Success
+bs --> Portal: 200 Ok (updated_data)
+deactivate bs
+Portal --> App: Application(Updated Application Data)
+deactivate Portal
+
+== Delete Loan Application Draft ==
+App -> Portal: Delete Loan Application
+Activate Portal
+Portal -> bs: DELETE /loan/application{id} 
+Activate bs
+bs -> ds: Delete Application
+ds -> bs: Success
+bs --> Portal: 204 No Content
+deactivate bs
+Portal --> App: Application Deleted
+deactivate Portal
+
 
 == Application Submission ==
 App -> Portal: Submit Loan Application
@@ -42,15 +69,15 @@ Portal -> bs: POST /loan(application_data)
 Activate bs
 bs -> LOS: POST [Loan Application]
 Activate LOS
-LOS -> bs: return [Lendfast Loan Application ID]
-bs -> ds: [Store Lendfast Loan Application ID]
+LOS -> bs: 201 Created [Loan Application ID]
+bs -> ds: [Store Loan Application ID (from LOS)]
 deactivate LOS
 bs -> Core: POST [Loan Application]
 activate Core
-Core -> bs: [Engine Loan ID]
+Core -> bs: 201 Created [Loan ID]
 deactivate Core
-bs -> ds: [Store Engine Loan ID]
-bs --> Portal: Success
+bs -> ds: [Store Loan ID (from Core)]
+bs --> Portal: 201 Created
 deactivate bs
 Portal --> App: Success
 deactivate Portal
