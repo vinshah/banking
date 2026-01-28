@@ -1,0 +1,50 @@
+@startuml
+title Loan Origination 
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+
+
+actor "Applicant" as App
+participant "Loan Origination System (LOS)" as LOS
+box "I&O Layer\nConverge BankingSuite" #LightBlue
+participant "Equifax-Adapter" as eq
+participant "Cotality-Adapter" as ct
+database DataStore as ds
+end box
+participant "Equifax API" as Credit
+participant "Cotality API" as cl
+
+participant "Document Service API" as Doc
+participant "Payment / Disbursement API" as Pay
+participant "Event Bus" as Event
+
+participant "Core Banking System" as Core
+
+
+== Credit Analysis ==
+LOS -> eq: Get Applicant credit score
+eq -> Credit: POST /business/scores-and-attributes/v1/reports/score-attributes \nAuthorization: Bearer JWT
+Credit --> eq: 200 OK (ConsumerCreditReport)
+eq -> LOS: Applicant Credit Report
+
+== Collateral Valuation ==
+LOS -> ct: Get Property Valuation
+ct -> cl: Get Property ID for Property Address
+cl -> ct: 200 OK (Property ID)
+ct -> cl: GET /avm/au/properties/{propertyId}/avm/intellival/origination/current
+cl --> ct: 200 OK (PropertyValuationData)
+ct --> LOS: Property Valuation Report
+
+== Pre-Approval ==
+
+== Offer Generation ==
+  
+
+== Account Creation ==
+
+== Disbursement ==
+  
+== Document Collection ==
+== Rejected ==
+
+@enduml
