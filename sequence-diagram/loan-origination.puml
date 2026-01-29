@@ -17,9 +17,6 @@ participant "Equifax API" as ei
 participant "Cotality API" as ci
 
 participant "Document Service API" as di
-participant "Payment / Disbursement API" as Pay
-participant "Event Bus" as Event
-
 participant "Core Banking System" as Core
 
 
