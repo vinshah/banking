@@ -1,0 +1,75 @@
+@startuml
+title Loan Origination 
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+
+
+actor "Applicant" as App
+participant "Loan Origination System (LOS)" as LOS
+box "I&O Layer\nConverge BankingSuite" #LightBlue
+participant "Loan-Service" as ls
+participant "Equifax-Adapter" as ea
+participant "Cotality-Adapter" as ct
+participant "Docmosis-Adapter" as da
+database DataStore as ds
+end box
+participant "Equifax API" as ei
+participant "Cotality API" as ci
+
+participant "Document Service API" as di
+participant "Payment / Disbursement API" as Pay
+participant "Event Bus" as Event
+
+participant "Core Banking System" as Core
+
+
+== Credit Analysis ==
+LOS -> ea: Get Applicant credit score
+ea -> ei: POST /business/scores-and-attributes/v1/reports/score-attributes \nAuthorization: Bearer JWT
+ei --> ea: 200 OK (ConsumerCreditReport)
+ea -> LOS: Applicant Credit Report
+
+== Collateral Valuation ==
+LOS -> ct: Get Property Valuation
+ct -> ci: Get Property ID for Property Address
+ci -> ct: 200 OK (Property ID)
+ct -> ci: GET /avm/au/properties/{propertyId}/avm/intellival/origination/current
+ci --> ct: 200 OK (PropertyValuationData)
+ct --> LOS: Property Valuation Report
+
+== Offer Generation ==
+alt Approved - Generate Offer
+    LOS -> da: Loan Approved - Generate Offer Letter
+    da -> di : POST /render (Loan Offer Letter)
+    activate di
+    di --> da: 200 Offer Letter
+    deactivate di
+    da -> App: Notify Approval & Send Contract
+else  Declined
+    LOS -> da: Loan Approved - Generate Offer Letter
+    da -> di : POST /render (Loan Offer Letter)
+    activate di
+    di --> da: 200 Offer Letter
+    deactivate di
+    da -> App: Send Decline Notification
+end
+
+== Account Creation ==
+App -> LOS: Sign Contract
+LOS -> ls: Book Loan 
+ls -> Core: POST /loan
+activate Core
+Core --> ls: 200 Ok (loan-id)
+deactivate Core
+par
+ls --> LOS: Loan Created 
+ls -> da: Genearte Loan Document
+da -> di: POST /render {Loan Document}
+activate di
+di --> da: 200 Loan Document
+deactivate di
+
+da --> App: Loan Created
+da --> ls: 200 Success
+end par
+@enduml

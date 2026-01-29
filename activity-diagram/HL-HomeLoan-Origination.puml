@@ -1,0 +1,68 @@
+@startuml loan_origination_process
+
+skinparam ParticipantPadding 10
+skinparam BoxPadding 10
+skinparam defaultTextAlignment center
+
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor<<Success>> LightGreen
+  BackgroundColor<<Failure>> LightCoral
+  BackgroundColor<<Process>> LightBlue
+  BackgroundColor<<Decision>> LightYellow
+}
+
+title Loan Origination Process - End to End
+
+start
+:Customer Starts Application;
+:Pre-qualification Check;
+
+if (Qualified?) then (yes)
+  :Complete Full Application<<Process>>;
+  :Upload Documents<<Process>>;
+  :Automated Document Verification;
+  
+  if (Verification Passed?) then (yes)
+    :Credit Assessment<<Process>>;
+  else (no)
+    :Manual Review Required;
+    :Credit Assessment<<Process>>;
+  endif
+  
+  :Automated Underwriting<<Process>>;
+  
+  if (Underwriting Decision?) then (Auto-Approve)
+    :Generate Loan Offer<<Success>>;
+  elseif (Refer) then
+    :Manual Underwriting;
+    if (Approve?) then (yes)
+      :Generate Loan Offer<<Success>>;
+    else (no)
+      :Send Decline Notice<<Failure>>;
+      stop
+    endif
+  else (Auto-Decline)
+    :Send Decline Notice<<Failure>>;
+    stop
+  endif
+  
+  :Customer Reviews Offer;
+  
+  if (Accept Offer?) then (yes)
+    :e-Signature Process<<Process>>;
+    :Final Verification & Compliance;
+    :Fund Disbursement<<Success>>;
+    :Loan Originated<<Success>>;
+    stop
+  else (no)
+    :Application Abandoned;
+    stop
+  endif
+  
+else (no)
+  :Send Decline Notice<<Failure>>;
+  stop
+endif
+
+@enduml
