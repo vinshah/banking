@@ -1,0 +1,70 @@
+@startuml document_processing_swimlane
+|#E8F5E9|Applicant|
+start
+:Access Upload Portal;
+:Capture/Upload Documents;
+
+|#E3F2FD|Web Portal|
+:Display Upload Checklist;
+:Accept File Upload;
+:Validate File Types/Size;
+
+if (Valid?) then (yes)
+  :Show Progress;
+else (no)
+  :Request Re-upload;
+  |Applicant|
+  stop
+endif
+
+|Applicant|
+if (All Docs Uploaded?) then (yes)
+  :Submit for Review;
+else (no)
+  :Upload More Documents;
+  stop
+endif
+
+|#FFF3E0|Document Engine|
+:Receive Documents;
+:Scan for Malware;
+:Extract Text - OCR;
+:Classify Document Type;
+:Extract Key Data Fields;
+:Store in Repository;
+
+|#F3E5F5|Verification Service|
+:Match Data with Application;
+:Check Document Authenticity;
+:Verify Identity;
+
+if (Verification Result?) then (pass)
+  :Mark as Verified;
+else (fail)
+  :Flag for Manual Review;
+  
+  |#FFEBEE|Document Reviewer|
+  :Review Flagged Documents;
+  :Compare with Originals;
+  
+  if (Accept or Reject?) then (accept)
+    :Approve Documents;
+    |Verification Service|
+    :Mark as Verified;
+  else (reject)
+    :Request New Documents;
+    |Applicant|
+    :Provide Additional Docs;
+    stop
+  endif
+endif
+
+|#E0F2F1|Compliance|
+:Check KYC Requirements;
+:Verify AML Criteria;
+:Audit Trail;
+:Final Approval;
+
+stop
+
+@enduml

@@ -1,0 +1,81 @@
+@startuml funding_disbursement_swimlane
+|#C8E6C9|Customer|
+start
+:Accept Loan Offer;
+
+|#BBDEFB|Loan Origination System|
+:Process Acceptance;
+:Generate Loan Documents;
+:Send for e-Signature;
+
+|#FFF9C4|e-Signature Service|
+:Receive Document Package;
+:Send to Customer;
+
+|Customer|
+:Complete e-Signature;
+
+|e-Signature Service|
+:Track Signature Status;
+:Validate Signatures;
+:Return Signed Documents;
+
+|Loan Origination System|
+:Receive Signed Docs;
+:Trigger Funding Workflow;
+
+|#FFCCBC|Final Compliance|
+:Final Document Review;
+:Check Regulatory Requirements;
+:Verify Disclosures;
+:TRID Compliance Check;
+
+if (Compliant?) then (yes)
+  :Clear for Funding;
+else (no)
+  :Flag Issues;
+  |Loan Origination System|
+  stop
+endif
+
+|#D1C4E9|Funding Team|
+:Receive Funding Request;
+
+|Customer|
+:Provide Bank Details;
+
+|Funding Team|
+:Verify Account Details;
+:Calculate Disbursement Amount;
+:Prepare Funding Instructions;
+:Submit to Treasury;
+
+|#B2DFDB|Treasury/Core Banking|
+:Receive Funding Instructions;
+:Validate Available Funds;
+:Create Loan Account;
+:Initiate Wire/ACH Transfer;
+:Process Transfer;
+
+if (Transfer Status?) then (success)
+  :Confirm Success;
+  
+  |#F8BBD0|Loan Servicing|
+  :Activate Loan Account;
+  :Setup Payment Schedule;
+  :Send Welcome Package;
+  :Setup Auto-Pay if Requested;
+  :Begin Servicing;
+  
+  |Customer|
+  :Receive Funds;
+  :Confirm Receipt;
+  stop
+else (failure)
+  :Handle Failure;
+  |Funding Team|
+  :Investigate Issue;
+  stop
+endif
+
+@enduml
