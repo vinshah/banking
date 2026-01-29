@@ -1,0 +1,85 @@
+@startuml loan_origination_swimlane
+|#LightBlue|Customer|
+start
+:Start Application;
+:Provide Personal Info;
+:Upload Documents;
+
+|#LightGreen|Web/Mobile Portal|
+:Display Application Form;
+:Validate Input;
+:Show Upload Interface;
+
+|#LightYellow|Application Service|
+:Create Application Record;
+:Trigger Document Verification;
+
+|#LightCyan|Document Service|
+:Receive Documents;
+:OCR Processing;
+:Verify Authenticity;
+
+if (Verification Status?) then (valid)
+  :Store Documents;
+else (invalid)
+  |Customer|
+  :Re-upload Documents;
+  stop
+endif
+
+|Application Service|
+:Initiate Credit Check;
+
+|#Lavender|Credit & Risk Service|
+:Pull Credit Report;
+:Calculate Credit Score;
+:Run Fraud Check;
+:Apply Risk Rules;
+
+if (Decision?) then (approve)
+  |#LightPink|Underwriting Service|
+  :Auto Underwriting;
+  
+  if (Auto Decision?) then (yes)
+    |Application Service|
+    :Generate Loan Offer;
+  else (no - refer)
+    |#PeachPuff|Human Underwriter|
+    :Review Application;
+    :Analyze Documents;
+    
+    if (Make Decision?) then (approve)
+      |Application Service|
+      :Generate Loan Offer;
+    else (decline)
+      |Customer|
+      :Receive Decline Notice;
+      stop
+    endif
+  endif
+  
+  |Customer|
+  :Review Loan Offer;
+  
+  if (Accept Offer?) then (yes)
+    :Sign Documents;
+    
+    |#Aquamarine|Core Banking System|
+    :Create Loan Account;
+    :Disburse Funds;
+    
+    |Customer|
+    :Receive Funds;
+    stop
+  else (no)
+    :Abandon Application;
+    stop
+  endif
+  
+else (decline)
+  |Customer|
+  :Receive Decline Notice;
+  stop
+endif
+
+@enduml
