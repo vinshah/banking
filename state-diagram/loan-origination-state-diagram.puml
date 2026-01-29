@@ -1,0 +1,86 @@
+@startuml application_state_diagram
+skinparam state {
+  BackgroundColor<<Initial>> LightGreen
+  BackgroundColor<<Processing>> LightBlue
+  BackgroundColor<<Review>> LightYellow
+  BackgroundColor<<Final>> LightCoral
+  BackgroundColor<<Success>> PaleGreen
+}
+
+title Application Lifecycle - State Transitions
+
+[*] --> Draft : Customer Starts
+
+state "Draft" as Draft <<Initial>>
+state "Pre-Qualified" as PreQual <<Processing>>
+state "In Progress" as InProgress <<Processing>>
+state "Documents Uploaded" as DocsUploaded <<Processing>>
+state "Documents Verified" as DocsVerified <<Processing>>
+state "Pending Review" as PendingReview <<Review>>
+state "In Underwriting" as InUW <<Processing>>
+state "Manual Underwriting" as ManualUW <<Review>>
+state "Information Required" as InfoRequired <<Review>>
+state "Approved" as Approved <<Success>>
+state "Offer Generated" as OfferGen <<Success>>
+state "Offer Accepted" as OfferAccepted <<Success>>
+state "Awaiting Signature" as AwaitingSig <<Processing>>
+state "Signed" as Signed <<Processing>>
+state "Final Verification" as FinalVerify <<Processing>>
+state "Ready to Fund" as ReadyToFund <<Success>>
+state "Funded" as Funded <<Success>>
+state "Declined" as Declined <<Final>>
+state "Withdrawn" as Withdrawn <<Final>>
+state "Expired" as Expired <<Final>>
+
+Draft --> PreQual : Submit Basic Info
+PreQual --> InProgress : Pass Pre-Qualification
+PreQual --> Declined : Fail Pre-Qualification
+
+InProgress --> DocsUploaded : Upload Documents
+DocsUploaded --> DocsVerified : Auto Verification Success
+DocsUploaded --> PendingReview : Verification Failed
+
+PendingReview --> DocsVerified : Manual Review Approved
+PendingReview --> Declined : Manual Review Rejected
+
+DocsVerified --> InUW : Trigger Underwriting
+InUW --> Approved : Auto-Approve
+InUW --> ManualUW : Requires Review
+InUW --> Declined : Auto-Decline
+
+ManualUW --> Approved : Underwriter Approves
+ManualUW --> Declined : Underwriter Declines
+ManualUW --> InfoRequired : Request More Info
+
+InfoRequired --> InUW : Info Provided
+
+Approved --> OfferGen : Create Offer
+OfferGen --> OfferAccepted : Customer Accepts
+OfferGen --> Withdrawn : Customer Rejects
+
+OfferAccepted --> AwaitingSig : Send Documents
+AwaitingSig --> Signed : e-Signature Complete
+AwaitingSig --> Expired : Timeout
+
+Signed --> FinalVerify : Compliance Check
+FinalVerify --> ReadyToFund : Verification Pass
+FinalVerify --> Declined : Verification Fail
+
+ReadyToFund --> Funded : Disburse Funds
+
+Funded --> [*]
+Declined --> [*]
+Withdrawn --> [*]
+Expired --> [*]
+
+note right of InUW
+  AI-powered decision engine
+  processes 80% automatically
+end note
+
+note right of ManualUW
+  Complex cases routed
+  to human underwriters
+end note
+
+@enduml
