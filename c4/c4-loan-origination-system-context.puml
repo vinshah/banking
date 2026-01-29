@@ -1,0 +1,34 @@
+@startuml system_context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title System Context - Loan Origination Platform
+
+Person(customer, "Customer", "Applies for loan via web/mobile")
+Person(underwriter, "Underwriter", "Reviews complex applications")
+Person(admin, "Admin", "Manages system configuration")
+
+System(los, "Loan Origination System", "Core platform for digital loan processing")
+
+System_Ext(creditBureau, "Credit Bureau APIs", "Experian, Equifax, TransUnion")
+System_Ext(docVerify, "Document Verification", "OCR and validation services")
+System_Ext(coreBank, "Core Banking System", "Account management and disbursement")
+System_Ext(crm, "CRM System", "Customer relationship data")
+System_Ext(fraud, "Fraud Detection", "Real-time fraud screening")
+System_Ext(notification, "Notification Service", "Email, SMS, Push notifications")
+System_Ext(esign, "e-Signature Platform", "DocuSign/Adobe Sign")
+System_Ext(compliance, "Compliance Engine", "Regulatory checks and reporting")
+
+Rel(customer, los, "Applies for loan, uploads docs", "HTTPS")
+Rel(underwriter, los, "Reviews applications", "HTTPS")
+Rel(admin, los, "Configures rules", "HTTPS")
+
+Rel(los, creditBureau, "Pulls credit reports", "REST API")
+Rel(los, docVerify, "Verifies documents", "REST API")
+Rel(los, coreBank, "Creates accounts, disburses funds", "SOAP/REST")
+Rel(los, crm, "Syncs customer data", "REST API")
+Rel(los, fraud, "Screens for fraud", "REST API")
+Rel(los, notification, "Sends updates", "REST API")
+Rel(los, esign, "Manages signatures", "REST API")
+Rel(los, compliance, "Validates compliance", "REST API")
+
+@enduml
