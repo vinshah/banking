@@ -2,7 +2,8 @@
 title Loan Application Submission
 skinparam ParticipantPadding 10
 skinparam BoxPadding 10
-autonumber
+skinparam defaultTextAlignment center
+
 
 actor "Applicant" as App
 participant "Mobile\nApplication" as Portal
@@ -28,7 +29,7 @@ deactivate Portal
 == Retrieve Loan Application Draft ==
 App -> Portal: Retrieve Loan Application
 Activate Portal
-Portal -> bs: GET /loan/application{id}
+Portal -> bs: GET /loan/application{applicationId}
 Activate bs
 bs -> ds: retrieve application based on id
 ds -> bs: Loan Application
@@ -40,7 +41,7 @@ deactivate Portal
 == Update Loan Application Draft ==
 App -> Portal: Update Loan Application
 Activate Portal
-Portal -> bs: PUT /loan/application{id} (updated_data)
+Portal -> bs: PUT /loan/application{applicationId} (updated_data)
 Activate bs
 bs -> ds: Update Application
 ds -> bs: Success
@@ -52,7 +53,7 @@ deactivate Portal
 == Delete Loan Application Draft ==
 App -> Portal: Delete Loan Application
 Activate Portal
-Portal -> bs: DELETE /loan/application{id} 
+Portal -> bs: DELETE /loan/application{applicationId} 
 Activate bs
 bs -> ds: Delete Application
 ds -> bs: Success
