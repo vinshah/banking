@@ -1,0 +1,73 @@
+Create a sequence diagram for a loan origination process with the following specifications:
+Participants:
+
+Applicant (actor)
+Loan Origination System (LOS)
+Integration & Operations Layer "Converge BankingSuite" containing:
+
+Loan-Service
+Equifax-Adapter
+Cotality-Adapter
+Docmosis-Adapter
+DataStore (database)
+
+
+External systems:
+
+Equifax API
+Cotality API
+Document Service API
+Core Banking System
+
+
+
+Process Flow:
+
+Credit Analysis Phase:
+
+LOS requests applicant credit score from Equifax-Adapter
+Equifax-Adapter calls Equifax API (POST endpoint for credit reports with JWT authorization)
+Return credit report back through the chain
+
+
+Collateral Valuation Phase:
+
+LOS requests property valuation from Cotality-Adapter
+Cotality-Adapter gets property ID from Cotality API
+Retrieves AVM valuation data using the property ID
+Returns valuation report to LOS
+
+
+Offer Generation Phase:
+
+Decision branch:
+
+If Approved: Generate offer letter via Docmosis-Adapter → Document Service API, send contract to applicant
+If Declined: Generate decline letter via same path, send decline notification to applicant
+
+
+
+
+Account Creation Phase:
+
+Applicant signs contract
+LOS triggers loan booking via Loan-Service
+Loan-Service creates loan in Core Banking System
+Parallel processes:
+
+Confirm loan creation to LOS
+Generate loan documents via Docmosis-Adapter
+Notify applicant of loan creation
+
+
+
+
+
+Styling Requirements:
+
+Group I&O Layer components in a light blue box
+Center-align box labels
+Include appropriate padding
+Show activation bars for Document Service API calls
+Use alt/else for approval decision
+Use par (parallel) for final notifications

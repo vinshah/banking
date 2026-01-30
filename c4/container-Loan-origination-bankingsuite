@@ -1,0 +1,64 @@
+@startuml C4_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram for Loan Origination System
+
+Person(applicant, "Loan Applicant", "Individual or business applying for a loan")
+
+System_Boundary(bank, "Bank Systems") {
+    Container(los, "Loan Origination System", "Web Application", "Manages loan application workflow and user interface")
+    
+    System_Boundary(converge, "Converge BankingSuite - I&O Layer") {
+        Container(loan_service, "Loan Service", "Java/Spring Boot", "Orchestrates loan booking and account creation processes")
+        
+        Container(equifax_adapter, "Equifax Adapter", "Java/Spring Boot", "Adapts and integrates with Equifax credit bureau API")
+        
+        Container(cotality_adapter, "Cotality Adapter", "Java/Spring Boot", "Adapts and integrates with Cotality property valuation API")
+        
+        Container(docmosis_adapter, "Docmosis Adapter", "Java/Spring Boot", "Adapts and integrates with document generation service")
+        
+        ContainerDb(datastore, "DataStore", "Database", "Stores integration data, cache, and transaction logs")
+    }
+    
+    System(core, "Core Banking System", "Records loan accounts and manages financial transactions")
+}
+
+System_Ext(equifax, "Equifax API", "Credit bureau service providing credit scores and consumer credit reports")
+
+System_Ext(cotality, "Cotality API", "Property valuation service with AVM capabilities")
+
+System_Ext(docmosis, "Document Service API", "Document generation and rendering service")
+
+' Applicant relationships
+Rel(applicant, los, "Submits application, signs contracts", "HTTPS")
+Rel(los, applicant, "Sends notifications and documents", "Email")
+
+' LOS to adapters
+Rel(los, equifax_adapter, "Requests credit analysis", "REST/JSON")
+Rel(los, cotality_adapter, "Requests property valuation", "REST/JSON")
+Rel(los, docmosis_adapter, "Requests document generation", "REST/JSON")
+Rel(los, loan_service, "Books approved loans", "REST/JSON")
+
+' Adapters to external systems
+Rel(equifax_adapter, equifax, "Retrieves credit reports", "REST/HTTPS, Bearer JWT")
+Rel(cotality_adapter, cotality, "Retrieves property valuations and AVM data", "REST/HTTPS")
+Rel(docmosis_adapter, docmosis, "Generates PDF documents", "REST/HTTPS")
+Rel(loan_service, core, "Creates loan accounts", "REST/HTTPS")
+
+' Internal relationships
+Rel(loan_service, docmosis_adapter, "Requests loan documentation", "REST/JSON")
+Rel(equifax_adapter, datastore, "Reads/Writes", "JDBC")
+Rel(cotality_adapter, datastore, "Reads/Writes", "JDBC")
+Rel(docmosis_adapter, datastore, "Reads/Writes", "JDBC")
+Rel(loan_service, datastore, "Reads/Writes", "JDBC")
+
+' Return paths
+Rel(equifax_adapter, los, "Returns credit report", "REST/JSON")
+Rel(cotality_adapter, los, "Returns valuation report", "REST/JSON")
+Rel(docmosis_adapter, los, "Returns generated documents", "REST/JSON")
+Rel(docmosis_adapter, applicant, "Sends documents", "Email")
+Rel(loan_service, los, "Confirms loan creation", "REST/JSON")
+
+@enduml
