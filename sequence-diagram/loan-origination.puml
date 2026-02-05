@@ -23,7 +23,7 @@ participant "Equifax API" as ei
 participant "Cotality API" as ci
 
 participant "Document Service API" as di
-participant "Core Banking System" as Core
+participant "Engine\nCore Banking System" as Core
 
 
 == Credit Analysis ==
