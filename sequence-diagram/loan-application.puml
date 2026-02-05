@@ -12,7 +12,7 @@ participant "Converge\nBankingSuite" as bs
 database DataStore as ds
 end box
 participant "Loan Origination System (LOS)" as LOS
-participant "Core Banking System" as Core
+participant "Engine\nCore Banking System" as Core
 
 == Initiate Loan Application ==
 App -> Portal: Initiate Loan Application
