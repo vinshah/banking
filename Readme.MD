@@ -60,4 +60,40 @@ Data flows originate with the applicant submitting an application through the LO
 
 ## 5. Visual Representation
 The following diagram illustrates the high-level system flow:
+```
+@startuml C4_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+LAYOUT_WITH_LEGEND()
+title System Context Diagram for Loan Origination System
+Person(applicant, "Loan Applicant", "Individual or business applying for a loan")
+System_Boundary(bank, "Bank") {
+    System(los, "Loan Origination System", "Manages the complete loan application and approval process including credit analysis, collateral valuation, and offer generation")
+    System(converge, "Converge BankingSuite", "Integration and Operations Layer that orchestrates services and adapters for credit scoring, property valuation, document generation, and loan booking")
+    System(core, "Core Banking System", "Records and manages all loan accounts and financial transactions")
+}
 
+
+System_Ext(equifax, "Equifax", "External credit bureau providing credit scores and reports")
+System_Ext(cotality, "Cotality", "External property valuation service providing AVM (Automated Valuation Model) data")
+System_Ext(docmosis, "Docmosis\nDocument Service", "External document generation service for creating loan offers, contracts, and notifications")
+
+
+Rel(applicant, los, "Submits loan application, signs contracts", "HTTPS")
+
+Rel(los, converge, "Requests credit analysis, property valuation, and document generation", "REST/HTTPS")
+
+'Credit Check
+Rel(converge, equifax, "Retrieves credit scores and reports", "REST/HTTPS, JWT Auth")
+
+'Loan Valuation
+Rel(converge, cotality, "Retrieves property valuations", "REST/HTTPS")
+
+'Comms Generation
+Rel(converge, docmosis, "Generates loan documents", "REST/HTTPS")
+
+'Loan creation
+Rel(converge, core, "Creates loan accounts", "REST/HTTPS")
+
+
+@enduml
+```
