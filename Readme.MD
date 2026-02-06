@@ -1,1 +1,1 @@
-This is a repo for All Banking artefacts
+# High-Level Design (HLD): Loan Origination System
