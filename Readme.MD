@@ -68,7 +68,7 @@ title System Context Diagram for Loan Origination System
 Person(applicant, "Loan Applicant", "Individual or business applying for a loan")
 System_Boundary(bank, "Bank") {
     System(los, "Loan Origination System", "Manages the complete loan application and approval process including credit analysis, collateral valuation, and offer generation")
-    System(converge, "Converge BankingSuite", "Integration and Operations Layer that orchestrates services and adapters for credit scoring, property valuation, document generation, and loan booking")
+    System(converge, "Integration Layer, "Integration and Operations Layer that orchestrates services and adapters for credit scoring, property valuation, document generation, and loan booking")
     System(core, "Core Banking System", "Records and manages all loan accounts and financial transactions")
 }
 
@@ -97,3 +97,19 @@ Rel(converge, core, "Creates loan accounts", "REST/HTTPS")
 
 @enduml
 ```
+
+## 6. External Dependencies and Third-Party Integrations
+Service	Purpose	Integration Point
+Equifax	Credit scoring/reporting	Integration Layer
+Cotality	Automated property valuation	Integration  Layer
+Docmosis	Dynamic document generation	Integration  Layer
+Core Banking	Loan account booking and lifecycle management	Integration  Layer
+
+## 7. Assumptions and Constraints
+1. LOS and Integration are stateless and support scale-out deployment.
+2 Third-party integrations depend on external SLAs and may require custom adapters.
+3. JWT authentication is required for Equifax; other services use HTTPS mutual TLS or API keys.
+4. Document generation may introduce asynchronous notification flows.
+5. JSON and PDF are the supported interchange formats at integration boundaries.
+6. Core Banking System is treated as a legacy platform with REST API exposure.
+
